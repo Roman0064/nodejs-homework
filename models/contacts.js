@@ -28,15 +28,19 @@ const addContact = async (contact) => {
 
 };
 
-const updateContact = async (id, { name, email, phone }) => {
+const updateContact = async (id, data) => {
     const contacts = await getAll();
     const index = contacts.findIndex((contact) => contact.id === id);
     if (index === -1) {
       return null;
     }
-    contacts[index] = { id, name, email, phone };
+    const updatedContact = {
+        ...contacts[index],
+        ...data,
+      };
+    contacts[index] = updatedContact;
     await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-    return contacts[index];
+    return updatedContact;
 };
 
 const removeContact = async (id) => {
