@@ -1,27 +1,19 @@
 const fs = require('fs/promises');
 const path = require('path');
 const {nanoid} = require('nanoid');
+const contactsPath = path.join(__dirname, "./contacts.json");
 
-const contactsPath = path.join(__dirname, '../models/contacts.json');
 
 const getAll = async () => {
-    try{
-        const data = await fs.readFile(contactsPath, 'utf-8');
-        const allContacts = JSON.parse(data);
-        return allContacts;
-    } catch (error){
-        console.log(error.message)
-    };
+    const data = await fs.readFile(contactsPath, 'utf-8');
+    const allContacts = JSON.parse(data);
+    return allContacts;
 };
 
 const getContactById = async (id) => {
-    try{
-        const contact = await getAll();
-        const contactById = contact.find(item => item.id === id);
-        return contactById || null;
-    } catch (error){
-        console.log(error.message);
-    };
+    const contact = await getAll();
+    const contactById = contact.find(item => item.id === id);
+    return contactById || null;
 };
   
 const addContact = async (contact) => {
@@ -36,13 +28,13 @@ const addContact = async (contact) => {
 
 };
 
-const updateContact = async (id, data) => {
+const updateContact = async (id, { name, email, phone }) => {
     const contacts = await getAll();
-    const index = contacts.findIndex(item => item.id === id);
-    if(index === -1){
-        return null;
+    const index = contacts.findIndex((contact) => contact.id === id);
+    if (index === -1) {
+      return null;
     }
-    contacts[index] = {id, ...data};
+    contacts[index] = { id, name, email, phone };
     await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
     return contacts[index];
 };
