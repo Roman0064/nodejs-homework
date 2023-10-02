@@ -34,13 +34,12 @@ const updateContact = async (id, data) => {
     if (index === -1) {
       return null;
     }
-    const updatedContact = {
+    contacts[index] = {
         ...contacts[index],
         ...data,
-      };
-    contacts[index] = updatedContact;
+    };
     await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-    return updatedContact;
+    return contacts[index];
 };
 
 const removeContact = async (id) => {
