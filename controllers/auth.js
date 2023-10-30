@@ -4,9 +4,10 @@ const gravatar = require('gravatar');
 const path = require('path');
 const fs = require("fs/promises");
 const Jimp = require("jimp");
+const nanoid = require('nanoid');
 
 const {User} = require('../models/user');
-const { HttpError, ctrlWrapper } = require('../helpers');
+const { HttpError, ctrlWrapper, sendEmail } = require('../helpers');
 
 const {SECRET_KEY} = process.env;
 
@@ -21,8 +22,18 @@ const register = async(req, res) => {
 
     const hashPassword = await bcrypt.hash(password, 10);
     const avatarURL = gravatar.url(email);
+    const verificationCode = nanoid();
     
-    const newUser = await User.create({...req.body, password: hashPassword, subscription, avatarURL});
+    const newUser = await User.create({...req.body, password: hashPassword, subscription, avatarURL, verificationCode});
+
+    const verifyEmail = {
+        to: email,
+        subject: "Verify email",
+        html: `<a target="_blank" href="http://localhost:3000/api/auth/verify/${verificationCode}">Click to verify email</a>`
+    };
+    await sendEmail(verifyEmail);
+
+
     res.status(201).json({
         email: newUser.email,
         subscription: newUser.subscription,
